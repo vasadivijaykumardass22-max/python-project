@@ -1,0 +1,77 @@
+import csv
+
+lost_items = []
+found_items = []
+
+# ── NEW: Load existing data on startup ──────────────────────────
+def load_from_csv():
+    try:
+        with open('lost_and_found.csv', mode='r', newline='') as file:
+            reader = csv.DictReader(file)
+            for row in reader:
+                if row["Status"] == "Lost":
+                    lost_items.append([row["Item Name"], row["Location"]])
+                elif row["Status"] == "Found":
+                    found_items.append([row["Item Name"], row["Location"]])
+        print("📂 Previous records loaded.")
+    except FileNotFoundError:
+        pass  # First run — no file yet, that's fine
+
+# ── FIX: Search both lists ───────────────────────────────────────
+def search_item():
+    name = input("Enter item name to search: ")
+    print(f"\nSearching for '{name}'...")
+    found_any = False
+
+    for item in lost_items:
+        if item[0].lower() == name.lower():
+            print(f"🔴 Reported LOST at: {item[1]}")
+            found_any = True
+
+    for item in found_items:                          # was missing before
+        if item[0].lower() == name.lower():
+            print(f"✨ Reported FOUND at: {item[1]}")
+            found_any = True
+
+    if not found_any:
+        print("❌ Item not found in the records.")
+
+# ── NEW: View all records ────────────────────────────────────────
+def view_all():
+    if not lost_items and not found_items:
+        print("No records yet.")
+        return
+    print(f"\n{'Status':<8} {'Item':<20} {'Location'}")
+    print("-" * 42)
+    for item in lost_items:
+        print(f"{'Lost':<8} {item[0]:<20} {item[1]}")
+    for item in found_items:
+        print(f"{'Found':<8} {item[0]:<20} {item[1]}")
+
+# ── Call load on startup ─────────────────────────────────────────
+load_from_csv()
+
+while True:
+    print("\n--- LOST AND FOUND SYSTEM ---")
+    print("1. Add Lost Item")
+    print("2. Add Found Item")
+    print("3. Search for an Item")
+    print("4. View All Records")    # ← new option
+    print("5. Exit")
+
+    ch = input("Enter choice (1-5): ")
+
+    if ch == '1':
+        add_lost()
+    elif ch == '2':
+        add_found()
+    elif ch == '3':
+        search_item()
+    elif ch == '4':
+        view_all()
+    elif ch == '5':
+        print("Exiting. Goodbye!")
+        break
+    else:
+        print("Invalid choice, please try again.")
+        
